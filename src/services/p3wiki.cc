@@ -244,7 +244,7 @@ bool p3Wiki::addModerator(const RsGxsGroupId& grpId, const RsGxsId& moderatorId)
 	collection.mModeratorTerminationDates.erase(moderatorId);
 
 	uint32_t token;
-	return updateCollection(token, collection);
+	return updateCollection(token, collection) && waitToken(token) == RsTokenService::COMPLETE;
 }
 
 bool p3Wiki::removeModerator(const RsGxsGroupId& grpId, const RsGxsId& moderatorId)
@@ -258,7 +258,7 @@ bool p3Wiki::removeModerator(const RsGxsGroupId& grpId, const RsGxsId& moderator
 	collection.mModeratorTerminationDates[moderatorId] = time(nullptr);
 
 	uint32_t token;
-	return updateCollection(token, collection);
+	return updateCollection(token, collection) && waitToken(token) == RsTokenService::COMPLETE;
 }
 
 bool p3Wiki::getModerators(const RsGxsGroupId& grpId, std::list<RsGxsId>& moderators)
@@ -281,6 +281,7 @@ bool p3Wiki::isActiveModerator(const RsGxsGroupId& grpId, const RsGxsId& authorI
 		return false;
 
 	auto it = collection.mModeratorTerminationDates.find(authorId);
+	// Reject edits made at or after the termination timestamp (termination is inclusive)
 	if (it != collection.mModeratorTerminationDates.end() && editTime >= it->second)
 		return false;
 
@@ -298,7 +299,9 @@ bool p3Wiki::acceptNewMessage(const RsGxsMsgMetaData *msgMeta, uint32_t /*size*/
 	RsGxsId originalAuthorId;
 	if (!getOriginalMessageAuthor(msgMeta->mGroupId, msgMeta->mOrigMsgId, originalAuthorId))
 	{
-		std::cerr << "p3Wiki: Rejecting edit " << msgMeta->mMsgId << " without original author data." << std::endl;
+		std::cerr << "p3Wiki: Rejecting edit " << msgMeta->mMsgId
+		          << " in group " << msgMeta->mGroupId
+		          << " without original author data." << std::endl;
 		return false;
 	}
 
@@ -308,6 +311,7 @@ bool p3Wiki::acceptNewMessage(const RsGxsMsgMetaData *msgMeta, uint32_t /*size*/
 	if (!checkModeratorPermission(msgMeta->mGroupId, msgMeta->mAuthorId, originalAuthorId, msgMeta->mPublishTs))
 	{
 		std::cerr << "p3Wiki: Rejecting edit from non-moderator " << msgMeta->mAuthorId
+		          << " in group " << msgMeta->mGroupId
 		          << " on message by " << originalAuthorId << std::endl;
 		return false;
 	}
