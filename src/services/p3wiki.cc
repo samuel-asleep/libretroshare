@@ -336,8 +336,9 @@ bool p3Wiki::getSnapshotContent(const RsGxsMessageId& snapshotId, std::string& c
 bool p3Wiki::getSnapshotsContent(const std::vector<RsGxsMessageId>& snapshotIds,
                                  std::map<RsGxsMessageId, std::string>& contents)
 {
+	// Allow empty input - just return success with empty map
 	if (snapshotIds.empty())
-		return false;
+		return true;
 	
 	// Use token-based request to fetch all snapshots
 	uint32_t token;
@@ -374,13 +375,14 @@ bool p3Wiki::getSnapshotsContent(const std::vector<RsGxsMessageId>& snapshotIds,
 	// Map snapshotId -> content for requested snapshots only
 	for (const auto& snapshot : snapshots)
 	{
-		if (requestedIds.count(snapshot.mMeta.mMsgId) > 0)
+		if (requestedIds.find(snapshot.mMeta.mMsgId) != requestedIds.end())
 		{
 			contents[snapshot.mMeta.mMsgId] = snapshot.mPage;
 		}
 	}
 	
-	return !contents.empty();
+	// Return true even if no snapshots found - successful operation with zero results
+	return true;
 }
 
 bool p3Wiki::acceptNewMessage(const RsGxsMsgMetaData *msgMeta, uint32_t /*size*/)
