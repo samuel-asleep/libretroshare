@@ -311,6 +311,8 @@ bool p3Wiki::getSnapshotContent(const RsGxsMessageId& snapshotId, std::string& c
 	std::list<RsGxsGroupId> grpIds;
 	if (!getGroupList(grpToken, grpIds) || grpIds.empty())
 	{
+		// If there are no wiki groups, the snapshot cannot exist.
+		// Return false as documented: "true if snapshot found and content retrieved"
 		std::cerr << "p3Wiki::getSnapshotContent() failed to get group list or list is empty" << std::endl;
 		return false;
 	}
@@ -389,6 +391,8 @@ bool p3Wiki::getSnapshotsContent(const std::vector<RsGxsMessageId>& snapshotIds,
 	if (!getGroupList(grpToken, grpIds) || grpIds.empty())
 	{
 		// If there are no wiki groups, there cannot be any snapshots to return.
+		// Return true as the operation succeeded, but with an empty result set.
+		// This matches the documented behavior: "true if operation completed successfully"
 		return true;
 	}
 	
