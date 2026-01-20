@@ -239,13 +239,9 @@ bool p3Wiki::addModerator(const RsGxsGroupId& grpId, const RsGxsId& moderatorId)
 		return false;
 
 	RsWikiCollection& collection = collections.front();
-	if(std::find(collection.mModeratorList.begin(),
-	              collection.mModeratorList.end(), moderatorId)
-	        == collection.mModeratorList.end())
-	{
-		collection.mModeratorList.push_back(moderatorId);
-		collection.mModeratorList.sort();
-	}
+	collection.mModeratorList.push_back(moderatorId);
+	collection.mModeratorList.sort();
+	collection.mModeratorList.unique();
 	collection.mModeratorTerminationDates.erase(moderatorId);
 
 	uint32_t token;
@@ -475,6 +471,9 @@ bool p3Wiki::acceptNewMessage(const RsGxsMsgMetaData *msgMeta, uint32_t /*size*/
 
 bool p3Wiki::checkModeratorPermission(const RsGxsGroupId& grpId, const RsGxsId& authorId, const RsGxsId& originalAuthorId, rstime_t editTime)
 {
+	if (authorId == originalAuthorId)
+		return true;
+
 	return isActiveModerator(grpId, authorId, editTime);
 }
 
