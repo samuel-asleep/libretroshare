@@ -159,7 +159,7 @@ public:
 	 * @brief Get page content from multiple snapshots efficiently (bulk fetch)
 	 * @param snapshotIds Vector of snapshot message IDs to fetch
 	 * @param contents Output map of snapshotId -> content
-	 * @return true if at least one snapshot was retrieved
+	 * @return true if the operation completed successfully (contents may be empty)
 	 */
 	virtual bool getSnapshotsContent(const std::vector<RsGxsMessageId>& snapshotIds,
 	                                 std::map<RsGxsMessageId, std::string>& contents) = 0;

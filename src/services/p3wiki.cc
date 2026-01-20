@@ -295,7 +295,9 @@ bool p3Wiki::getSnapshotContent(const RsGxsMessageId& snapshotId, std::string& c
 	RsTokReqOptions opts;
 	opts.mReqType = GXS_REQUEST_TYPE_MSG_DATA;
 	
-	// Request all messages from all groups - we'll filter by getting snapshots
+	// Note: GXS API requires GroupId to fetch specific messages. Since we only have
+	// MessageId, we must fetch all messages and filter. This is an API limitation.
+	// For better performance, caller should use getSnapshotsContent() for bulk operations.
 	std::list<RsGxsGroupId> grpIds; // Empty list means all groups
 	
 	if (!requestMsgInfo(token, opts, grpIds))
@@ -345,7 +347,9 @@ bool p3Wiki::getSnapshotsContent(const std::vector<RsGxsMessageId>& snapshotIds,
 	RsTokReqOptions opts;
 	opts.mReqType = GXS_REQUEST_TYPE_MSG_DATA;
 	
-	// Request all messages from all groups
+	// Note: GXS API requires GroupId to fetch specific messages. Since we only have
+	// MessageIds without their GroupIds, we must fetch all messages and filter.
+	// This is an API limitation but acceptable for bulk operations.
 	std::list<RsGxsGroupId> grpIds; // Empty list means all groups
 	
 	if (!requestMsgInfo(token, opts, grpIds))
