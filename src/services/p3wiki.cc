@@ -245,7 +245,6 @@ bool p3Wiki::addModerator(const RsGxsGroupId& grpId, const RsGxsId& moderatorId)
 	{
 		collection.mModeratorList.push_back(moderatorId);
 		collection.mModeratorList.sort();
-		collection.mModeratorList.unique();
 	}
 	collection.mModeratorTerminationDates.erase(moderatorId);
 
