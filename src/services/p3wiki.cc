@@ -482,13 +482,12 @@ bool p3Wiki::getCollectionData(const RsGxsGroupId& grpId, RsWikiCollection& coll
 {
 	std::map<RsGxsGroupId, RsNxsGrp*> grpMap;
 	grpMap[grpId] = nullptr;
+	std::map<RsGxsGroupId, RsNxsGrp*>::const_iterator grp_it;
 	
-	if (!mDataStore->retrieveNxsGrps(grpMap, true) || grpMap.find(grpId) == grpMap.end())
+	if (!mDataStore->retrieveNxsGrps(grpMap, true) || grpMap.end() == (grp_it = grpMap.find(grpId)) || !grp_it->second)
 		return false;
 	
-	RsNxsGrp* grpData = grpMap[grpId];
-	if (!grpData)
-		return false;
+	RsNxsGrp* grpData = grp_it->second;
 
 	std::unique_ptr<RsNxsGrp> grpCleanup(grpData);
 	RsItem* item = nullptr;
