@@ -230,21 +230,27 @@ endif(RS_JSON_API)
 
 list(
 	APPEND RS_SOURCES
-	pgp/openpgpsdkhandler.cc
 	pgp/pgpauxutils.cc
 	pgp/pgphandler.cc
 	pgp/pgpkeyutil.cc
-	pgp/rscertificate.cc
-	pgp/rnppgphandler.cc )
+	pgp/rscertificate.cc )
+
+# Conditionally include PGP handler based on USE_OPENPGPSDK define
+# Note: USE_OPENPGPSDK must be defined via compiler flags (e.g., CMAKE_CXX_FLAGS)
+if(CMAKE_CXX_FLAGS MATCHES "-DUSE_OPENPGPSDK")
+	list(APPEND RS_SOURCES pgp/openpgpsdkhandler.cc)
+	list(APPEND RS_IMPLEMENTATION_HEADERS pgp/openpgpsdkhandler.h)
+else()
+	list(APPEND RS_SOURCES pgp/rnppgphandler.cc)
+	list(APPEND RS_IMPLEMENTATION_HEADERS pgp/rnppgphandler.h)
+endif()
 
 list(
 	APPEND RS_IMPLEMENTATION_HEADERS
-	pgp/openpgpsdkhandler.h
 	pgp/pgpauxutils.h
 	pgp/pgphandler.h
 	pgp/pgpkeyutil.h
-	pgp/rscertificate.h
-	pgp/rnppgphandler.h )
+	pgp/rscertificate.h )
 
 #./plugins/dlfcn_win32.cc
 #./plugins/dlfcn_win32.h
