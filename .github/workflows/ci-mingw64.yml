@@ -60,7 +60,8 @@ jobs:
             -DRS_SQLCIPHER=ON \
             -DRS_BITDHT=ON \
             -DRS_JSON_API=OFF \
-            -DRS_FORUM_DEEP_INDEX=OFF
+            -DRS_FORUM_DEEP_INDEX=OFF \
+            -DCMAKE_CXX_FLAGS="-DUSE_OPENPGPSDK"
 
       - name: Build
         run: |
