@@ -481,7 +481,7 @@ bool p3Wiki::checkModeratorPermission(const RsGxsGroupId& grpId, const RsGxsId& 
 bool p3Wiki::getCollectionData(const RsGxsGroupId& grpId, RsWikiCollection& collection) const
 {
 	RsNxsGrp* grpData = nullptr;
-	if (!retrieveNxsIdentity(grpId, grpData) || !grpData)
+	if (!retrieveNxsGrp(grpId, grpData) || !grpData)
 		return false;
 
 	std::unique_ptr<RsNxsGrp> grpCleanup(grpData);
