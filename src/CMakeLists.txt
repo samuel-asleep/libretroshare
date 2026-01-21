@@ -706,7 +706,7 @@ list(
 	gossipdiscovery/gossipdiscoveryitems.h
 	gossipdiscovery/p3gossipdiscovery.h )
 
-if(RS_MINIUPNPC)
+if(RS_MINIUPNPC_AVAILABLE)
 	list(
 		APPEND RS_SOURCES
 		rs_upnp/upnphandler_miniupnp.cc
@@ -716,7 +716,7 @@ if(RS_MINIUPNPC)
 		APPEND RS_IMPLEMENTATION_HEADERS
 		rs_upnp/upnphandler_miniupnp.h
 		rs_upnp/upnputil.h )
-endif(RS_MINIUPNPC)
+endif(RS_MINIUPNPC_AVAILABLE)
 
 #./rs_upnp/UPnPBase.cpp
 #./rs_upnp/upnphandler_libupnp.cc

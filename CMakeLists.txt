@@ -375,6 +375,9 @@ find_path(
 if(EXISTS "${RS_RAPIDJSON_INCLUDE}")
 	message( STATUS
 	         "RapidJSON found in system at ${RS_RAPIDJSON_INCLUDE}" )
+	target_include_directories(
+		${PROJECT_NAME}
+		PUBLIC "${RS_RAPIDJSON_INCLUDE}" )
 elseif(EXISTS "${RAPIDJSON_DEVEL_DIR}/CMakeLists.txt")
 	message( STATUS
 	         "RapidJSON found in development dir at ${RAPIDJSON_DEVEL_DIR}" )
@@ -382,6 +385,10 @@ elseif(EXISTS "${RAPIDJSON_DEVEL_DIR}/CMakeLists.txt")
 		${PROJECT_NAME}
 		PUBLIC "${RAPIDJSON_DEVEL_DIR}/include" )
 else()
+	set(RAPIDJSON_BUILD_DOC OFF CACHE BOOL "" FORCE)
+	set(RAPIDJSON_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+	set(RAPIDJSON_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	set(RAPIDJSON_BUILD_THIRDPARTY_GTEST OFF CACHE BOOL "" FORCE)
 	FetchContent_Declare(
 		rapidjson
 		GIT_REPOSITORY "https://github.com/Tencent/rapidjson.git"
@@ -390,6 +397,9 @@ else()
 		TIMEOUT 10
 	)
 	FetchContent_MakeAvailable(rapidjson)
+	target_include_directories(
+		${PROJECT_NAME}
+		PUBLIC "${rapidjson_SOURCE_DIR}/include" )
 endif()
 
 ################################################################################
@@ -512,15 +522,26 @@ endif(RS_FORUM_DEEP_INDEX)
 ## TODO: Check if https://github.com/rbock/sqlpp11 or
 ## https://github.com/rbock/sqlpp17 may improve GXS code
 if(RS_SQLCIPHER)
-	find_library(RS_SQL_LIB "sqlcipher" REQUIRED)
+	find_library(RS_SQL_LIB "sqlcipher")
 	find_path(
 		RS_SQL_LIB_INCLUDE "sqlcipher/sqlite3.h"
-		PATH_SUFFIXES "include" "includes"
-		REQUIRED )
-	target_include_directories(
-		${PROJECT_NAME}
-		PRIVATE "${RS_SQL_LIB_INCLUDE}/sqlcipher" )
-	target_link_libraries(${PROJECT_NAME} PRIVATE ${RS_SQL_LIB})
+		PATH_SUFFIXES "include" "includes" )
+	if(RS_SQL_LIB AND RS_SQL_LIB_INCLUDE)
+		target_include_directories(
+			${PROJECT_NAME}
+			PRIVATE "${RS_SQL_LIB_INCLUDE}/sqlcipher" )
+		target_link_libraries(${PROJECT_NAME} PRIVATE ${RS_SQL_LIB})
+	else()
+		message(
+			WARNING
+			"RS_SQLCIPHER is ON but sqlcipher was not found; falling back to "
+			"SQLite3. Set RS_SQLCIPHER=OFF to silence this warning." )
+		# TODO: Refactor this define to use proper prefix and then flag as
+		# public
+		target_compile_definitions(${PROJECT_NAME} PRIVATE NO_SQLCIPHER)
+		find_package(SQLite3 REQUIRED)
+		target_link_libraries(${PROJECT_NAME} PRIVATE SQLite::SQLite3)
+	endif()
 else()
 	# TODO: Refactor this define to use proper prefix and then flag as
 	# public
@@ -552,10 +573,24 @@ if(NOT RS_DH_PRIME_INIT_CHECK)
 		${PROJECT_NAME} PRIVATE RS_DISABLE_DIFFIE_HELLMAN_INIT_CHECK )
 endif(NOT RS_DH_PRIME_INIT_CHECK)
 
+set(RS_MINIUPNPC_AVAILABLE OFF)
 if(RS_MINIUPNPC)
-	target_compile_definitions(
-		${PROJECT_NAME} PUBLIC RS_USE_LIBMINIUPNPC )
-	target_link_libraries(${PROJECT_NAME} PRIVATE miniupnpc)
+	find_library(RS_MINIUPNPC_LIBRARY miniupnpc)
+	find_path(RS_MINIUPNPC_INCLUDE_DIR miniupnpc/miniupnpc.h)
+	if(RS_MINIUPNPC_LIBRARY AND RS_MINIUPNPC_INCLUDE_DIR)
+		set(RS_MINIUPNPC_AVAILABLE ON)
+		target_compile_definitions(
+			${PROJECT_NAME} PUBLIC RS_USE_LIBMINIUPNPC )
+		target_include_directories(
+			${PROJECT_NAME}
+			PRIVATE "${RS_MINIUPNPC_INCLUDE_DIR}" )
+		target_link_libraries(${PROJECT_NAME} PRIVATE ${RS_MINIUPNPC_LIBRARY})
+	else()
+		message(
+			WARNING
+			"RS_MINIUPNPC is ON but miniupnpc was not found; continuing without "
+			"MiniUPnP support. Set RS_MINIUPNPC=OFF to silence this warning." )
+	endif()
 endif(RS_MINIUPNPC)
 
 if(RS_LIBUPNP)
