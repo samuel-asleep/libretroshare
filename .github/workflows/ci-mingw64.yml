@@ -47,6 +47,7 @@ jobs:
             mingw-w64-x86_64-sqlcipher
             mingw-w64-x86_64-zlib
             mingw-w64-x86_64-bzip2
+            mingw-w64-x86_64-rapidjson
 
       - name: Configure CMake
         run: |
