@@ -343,7 +343,7 @@ if(RS_BITDHT)
 			GIT_SHALLOW TRUE
 			GIT_PROGRESS TRUE
 			TIMEOUT 10
-			PATCH_COMMAND sed -i "s/cmake_minimum_required (VERSION 2.8.12)/cmake_minimum_required (VERSION 3.5)/" CMakeLists.txt || (exit 0)
+			PATCH_COMMAND sed -i.bak "s/cmake_minimum_required (VERSION 2.8.12)/cmake_minimum_required (VERSION 3.5)/" CMakeLists.txt || true
 		)
 		FetchContent_MakeAvailable(bitdht)
 
