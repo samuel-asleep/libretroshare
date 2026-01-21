@@ -590,6 +590,7 @@ if(RS_BRODCAST_DISCOVERY)
 			GIT_SHALLOW TRUE
 			GIT_PROGRESS TRUE
 			TIMEOUT 10
+			PATCH_COMMAND sed -i.bak "s/cmake_minimum_required(VERSION 3.0)/cmake_minimum_required(VERSION 3.5)/" CMakeLists.txt || true
 		)
 		FetchContent_MakeAvailable(udp-discovery-cpp)
 
