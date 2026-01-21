@@ -45,6 +45,8 @@ jobs:
             mingw-w64-x86_64-openssl
             mingw-w64-x86_64-miniupnpc
             mingw-w64-x86_64-sqlcipher
+            mingw-w64-x86_64-zlib
+            mingw-w64-x86_64-bzip2
 
       - name: Configure CMake
         run: |
