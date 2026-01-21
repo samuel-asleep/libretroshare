@@ -296,28 +296,33 @@ target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
 ################################################################################
 
-set(OPENPGPSDK_DEVEL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../openpgpsdk/")
-if(EXISTS "${OPENPGPSDK_DEVEL_DIR}/CMakeLists.txt" )
-	message(
-		STATUS
-		"openpgpsdk source found at ${OPENPGPSDK_DEVEL_DIR} using it" )
-	add_subdirectory("${OPENPGPSDK_DEVEL_DIR}" "${CMAKE_BINARY_DIR}/openpgpsdk")
-else()
-	FetchContent_Declare(
-		openpgpsdk
-		GIT_REPOSITORY "https://github.com/RetroShare/OpenPGP-SDK.git"
-		GIT_TAG "origin/master"
-		GIT_SHALLOW TRUE
-		GIT_PROGRESS TRUE
-		TIMEOUT 10
-	)
-	FetchContent_MakeAvailable(openpgpsdk)
-endif()
-
-target_link_libraries(${PROJECT_NAME} PRIVATE openpgpsdk)
-
+# PGP handler selection
 if(RS_USE_OPENPGPSDK)
+	set(OPENPGPSDK_DEVEL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../openpgpsdk/")
+	if(EXISTS "${OPENPGPSDK_DEVEL_DIR}/CMakeLists.txt" )
+		message(
+			STATUS
+			"openpgpsdk source found at ${OPENPGPSDK_DEVEL_DIR} using it" )
+		add_subdirectory("${OPENPGPSDK_DEVEL_DIR}" "${CMAKE_BINARY_DIR}/openpgpsdk")
+	else()
+		FetchContent_Declare(
+			openpgpsdk
+			GIT_REPOSITORY "https://github.com/RetroShare/OpenPGP-SDK.git"
+			GIT_TAG "origin/master"
+			GIT_SHALLOW TRUE
+			GIT_PROGRESS TRUE
+			TIMEOUT 10
+		)
+		FetchContent_MakeAvailable(openpgpsdk)
+	endif()
+	
+	target_link_libraries(${PROJECT_NAME} PRIVATE openpgpsdk)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE USE_OPENPGPSDK)
+else()
+	# Use librnp when not using OpenPGP SDK
+	find_package(PkgConfig REQUIRED)
+	pkg_check_modules(RNP REQUIRED IMPORTED_TARGET librnp)
+	target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::RNP)
 endif()
 
 ################################################################################
