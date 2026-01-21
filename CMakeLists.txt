@@ -344,6 +344,7 @@ if(RS_BITDHT)
 			GIT_PROGRESS TRUE
 			TIMEOUT 10
 			PATCH_COMMAND sed -i.bak "s/cmake_minimum_required (VERSION 2.8.12)/cmake_minimum_required (VERSION 3.5)/" CMakeLists.txt || true
+			COMMAND sed -i.bak "s/MoveFileEx(/MoveFileExW(/" src/util/bdfile.cc || true
 		)
 		FetchContent_MakeAvailable(bitdht)
 
