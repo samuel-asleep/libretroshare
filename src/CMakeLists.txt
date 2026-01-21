@@ -235,9 +235,8 @@ list(
 	pgp/pgpkeyutil.cc
 	pgp/rscertificate.cc )
 
-# Conditionally include PGP handler based on USE_OPENPGPSDK define
-# Note: USE_OPENPGPSDK must be defined via compiler flags (e.g., CMAKE_CXX_FLAGS)
-if(CMAKE_CXX_FLAGS MATCHES "-DUSE_OPENPGPSDK")
+# Conditionally include PGP handler based on RS_USE_OPENPGPSDK option
+if(RS_USE_OPENPGPSDK)
 	list(APPEND RS_SOURCES pgp/openpgpsdkhandler.cc)
 	list(APPEND RS_IMPLEMENTATION_HEADERS pgp/openpgpsdkhandler.h)
 else()

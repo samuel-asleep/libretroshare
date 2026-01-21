@@ -138,6 +138,11 @@ option(
 	ON )
 
 option(
+	RS_USE_OPENPGPSDK
+	"Use OpenPGP SDK instead of librnp for PGP operations"
+	ON )
+
+option(
 	RS_DEVELOPMENT_BUILD
 	"Disable optimization to speed up build, enable verbose build log. \
 	 just for development purposes, not suitable for library usage"
@@ -310,6 +315,10 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE openpgpsdk)
+
+if(RS_USE_OPENPGPSDK)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE USE_OPENPGPSDK)
+endif()
 
 ################################################################################
 

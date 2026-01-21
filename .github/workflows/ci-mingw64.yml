@@ -61,7 +61,7 @@ jobs:
             -DRS_BITDHT=ON \
             -DRS_JSON_API=OFF \
             -DRS_FORUM_DEEP_INDEX=OFF \
-            -DCMAKE_CXX_FLAGS="-DUSE_OPENPGPSDK"
+            -DRS_USE_OPENPGPSDK=ON
 
       - name: Build
         run: |
