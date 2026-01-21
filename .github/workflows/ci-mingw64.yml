@@ -38,33 +38,28 @@ jobs:
           install: >-
             base-devel
             git
-            wget
-            p7zip
-            gcc
-            perl
-            ruby
-            doxygen
             cmake
             mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-openssl
             mingw-w64-x86_64-miniupnpc
-            mingw-w64-x86_64-libxslt
-            mingw-w64-x86_64-xapian-core
             mingw-w64-x86_64-sqlcipher
-            mingw-w64-x86_64-qt5-base
-            mingw-w64-x86_64-qt5-multimedia
-            mingw-w64-x86_64-ccmake
-            mingw-w64-x86_64-rapidjson
-            mingw-w64-x86_64-json-c
-            mingw-w64-x86_64-libbotan
-            mingw-w64-x86_64-asio
 
-      - name: Checkout submodules
+      - name: Configure CMake
         run: |
-          env
-          git submodule update --init --remote libbitdht/ libretroshare/ retroshare-webui/
-          git submodule update --init supportlibs/librnp supportlibs/rapidjson supportlibs/restbed
+          mkdir -p build
+          cd build
+          cmake .. \
+            -G "Ninja" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DRS_MINIUPNPC=ON \
+            -DRS_SQLCIPHER=ON \
+            -DRS_BITDHT=ON \
+            -DRS_JSON_API=OFF \
+            -DRS_FORUM_DEEP_INDEX=OFF
 
-      - name: CI-Build
+      - name: Build
         run: |
-          qmake . -r -spec win32-g++ "CONFIG+=release" "CONFIG+=rs_autologin" "CONFIG+=no_rs_sam3" "CONFIG+=no_rs_sam3_libsam3"
-          mingw32-make -j3
+          cd build
+          ninja -j3
