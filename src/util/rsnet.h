@@ -29,7 +29,7 @@
 #include <iostream>
 
 /********************************** WINDOWS/UNIX SPECIFIC PART ******************/
-#ifndef WINDOWS_SYS
+#if !defined(WINDOWS_SYS) && !defined(_WIN32)
 
 #include <sys/types.h>
 #include <sys/socket.h>
