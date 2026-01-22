@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/CMakeFiles/udp-discovery-cpp-populate"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/CMakeFiles/udp-discovery-cpp-populate.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/CMakeFiles/udp-discovery-cpp-populate-complete.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-build.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-configure.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-download.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-install.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-patch.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-test.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"udp-discovery-cpp-populate"
+		],
+		"name" : "udp-discovery-cpp-populate"
+	}
+}

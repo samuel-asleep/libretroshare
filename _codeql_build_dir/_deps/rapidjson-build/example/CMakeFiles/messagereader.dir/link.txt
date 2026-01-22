@@ -1,0 +1,1 @@
+/home/runner/work/libretroshare/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -march=native -Wall -Wextra -Werror -pthread -O3 -DNDEBUG -rdynamic -Wl,--dependency-file=CMakeFiles/messagereader.dir/link.d CMakeFiles/messagereader.dir/messagereader/messagereader.cpp.o -o ../../../bin/messagereader

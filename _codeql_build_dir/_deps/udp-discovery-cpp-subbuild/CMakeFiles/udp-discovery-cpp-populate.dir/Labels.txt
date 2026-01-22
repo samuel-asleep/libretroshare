@@ -1,0 +1,14 @@
+# Target labels
+ udp-discovery-cpp-populate
+# Source files and their labels
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/CMakeFiles/udp-discovery-cpp-populate
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/CMakeFiles/udp-discovery-cpp-populate.rule
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/CMakeFiles/udp-discovery-cpp-populate-complete.rule
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-build.rule
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-configure.rule
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-download.rule
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-install.rule
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-mkdir.rule
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-patch.rule
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-test.rule
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/udp-discovery-cpp-populate-prefix/src/udp-discovery-cpp-populate-stamp/udp-discovery-cpp-populate-update.rule

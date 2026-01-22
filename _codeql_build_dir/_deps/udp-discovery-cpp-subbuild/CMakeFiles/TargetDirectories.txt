@@ -1,0 +1,3 @@
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/CMakeFiles/udp-discovery-cpp-populate.dir
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/CMakeFiles/edit_cache.dir
+/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/udp-discovery-cpp-subbuild/CMakeFiles/rebuild_cache.dir

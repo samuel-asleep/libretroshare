@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/CMakeFiles/openpgpsdk-populate"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/CMakeFiles/openpgpsdk-populate.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/CMakeFiles/openpgpsdk-populate-complete.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/openpgpsdk-populate-prefix/src/openpgpsdk-populate-stamp/openpgpsdk-populate-build.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/openpgpsdk-populate-prefix/src/openpgpsdk-populate-stamp/openpgpsdk-populate-configure.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/openpgpsdk-populate-prefix/src/openpgpsdk-populate-stamp/openpgpsdk-populate-download.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/openpgpsdk-populate-prefix/src/openpgpsdk-populate-stamp/openpgpsdk-populate-install.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/openpgpsdk-populate-prefix/src/openpgpsdk-populate-stamp/openpgpsdk-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/openpgpsdk-populate-prefix/src/openpgpsdk-populate-stamp/openpgpsdk-populate-patch.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/openpgpsdk-populate-prefix/src/openpgpsdk-populate-stamp/openpgpsdk-populate-test.rule"
+		},
+		{
+			"file" : "/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/openpgpsdk-populate-prefix/src/openpgpsdk-populate-stamp/openpgpsdk-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"openpgpsdk-populate"
+		],
+		"name" : "openpgpsdk-populate"
+	}
+}
