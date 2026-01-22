@@ -32,7 +32,8 @@ RsWiki *rsWiki = NULL;
 
 p3Wiki::p3Wiki(RsGeneralDataService* gds, RsNetworkExchangeService* nes, RsGixs *gixs)
 	:RsGenExchange(gds, nes, new RsGxsWikiSerialiser(), RS_SERVICE_GXS_TYPE_WIKI, gixs, wikiAuthenPolicy()), 
-	RsWiki(static_cast<RsGxsIface&>(*this))
+	RsWiki(static_cast<RsGxsIface&>(*this)),
+	mKnownWikisMutex("GXS wiki known collections timestamp cache")
 {
 }
 
