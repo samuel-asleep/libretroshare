@@ -72,7 +72,7 @@ void p3Wiki::notifyChanges(std::vector<RsGxsNotify*>& changes)
             RsGxsMsgChange* msgChange = dynamic_cast<RsGxsMsgChange*>(change);
             if (msgChange) {
                 // Check if this is a comment or a snapshot
-                if (dynamic_cast<RsGxsWikiCommentItem*>(msgChange->mNewMsgItem)) {
+                if (nullptr != dynamic_cast<RsGxsWikiCommentItem*>(msgChange->mNewMsgItem)) {
                     // This is a comment
                     if (msgChange->getType() == RsGxsNotify::TYPE_RECEIVED_NEW || 
                         msgChange->getType() == RsGxsNotify::TYPE_PUBLISHED) {
