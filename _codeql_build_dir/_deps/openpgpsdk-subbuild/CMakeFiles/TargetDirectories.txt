@@ -1,3 +1,0 @@
-/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/CMakeFiles/openpgpsdk-populate.dir
-/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/CMakeFiles/edit_cache.dir
-/home/runner/work/libretroshare/libretroshare/_codeql_build_dir/_deps/openpgpsdk-subbuild/CMakeFiles/rebuild_cache.dir
