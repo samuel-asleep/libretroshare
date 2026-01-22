@@ -16,3 +16,4 @@ Makefile.libretroshare
 *.o
 build/
 _codeql_build_dir/
+build/
