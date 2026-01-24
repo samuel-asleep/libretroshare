@@ -300,14 +300,7 @@ bool p3Wiki::addModerator(const RsGxsGroupId& grpId, const RsGxsId& moderatorId)
 		return false;
 
 	RsWikiCollection& collection = collections.front();
-	if(std::find(collection.mModeratorList.begin(),
-	              collection.mModeratorList.end(), moderatorId)
-	        == collection.mModeratorList.end())
-	{
-		collection.mModeratorList.push_back(moderatorId);
-		collection.mModeratorList.sort();
-	}
-	collection.mModeratorTerminationDates.erase(moderatorId);
+	collection.mModeratorTerminationDates[moderatorId] = 0;
 
 	uint32_t token;
 	return updateCollection(token, collection) && waitToken(token) == RsTokenService::COMPLETE;
@@ -320,7 +313,6 @@ bool p3Wiki::removeModerator(const RsGxsGroupId& grpId, const RsGxsId& moderator
 		return false;
 
 	RsWikiCollection& collection = collections.front();
-	collection.mModeratorList.remove(moderatorId);
 	collection.mModeratorTerminationDates[moderatorId] = time(nullptr);
 
 	uint32_t token;
@@ -333,7 +325,10 @@ bool p3Wiki::getModerators(const RsGxsGroupId& grpId, std::list<RsGxsId>& modera
 	if (!getCollections({grpId}, collections) || collections.empty())
 		return false;
 
-	moderators = collections.front().mModeratorList;
+	moderators.clear();
+	for (const auto& entry : collections.front().mModeratorTerminationDates)
+		if (entry.second == 0)
+			moderators.push_back(entry.first);
 	return true;
 }
 
@@ -343,86 +338,90 @@ bool p3Wiki::isActiveModerator(const RsGxsGroupId& grpId, const RsGxsId& authorI
 	if (!getCollectionData(grpId, collection))
 		return false;
 
-	if (std::find(collection.mModeratorList.begin(), collection.mModeratorList.end(), authorId) == collection.mModeratorList.end())
+	auto it = collection.mModeratorTerminationDates.find(authorId);
+	if (it == collection.mModeratorTerminationDates.end())
 		return false;
 
-	auto it = collection.mModeratorTerminationDates.find(authorId);
 	// Reject edits made at or after the termination timestamp (termination is inclusive)
-	if (it != collection.mModeratorTerminationDates.end() && editTime >= it->second)
+	if (it->second != 0 && editTime >= it->second)
 		return false;
 
 	return true;
 }
 
-bool p3Wiki::getSnapshotContent(const RsGxsMessageId& snapshotId, std::string& content)
+bool p3Wiki::getSnapshotContent(const RsGxsGroupId& grpId,
+                                const RsGxsMessageId& snapshotId,
+                                std::string& content)
 {
-	// First, retrieve the list of all wiki group IDs
-	uint32_t grpToken;
-	RsTokReqOptions grpOpts;
-	grpOpts.mReqType = GXS_REQUEST_TYPE_GROUP_IDS;
+	content.clear();
 
-	if (!requestGroupInfo(grpToken, grpOpts))
+	if (grpId.isNull() || snapshotId.isNull())
+		return false;
+
+	std::shared_ptr<RsGxsMsgMetaData> meta;
+	if (!getMessageMeta(grpId, snapshotId, meta) || !meta)
 	{
-		std::cerr << "p3Wiki::getSnapshotContent() requestGroupInfo failed" << std::endl;
+		std::cerr << "p3Wiki::getSnapshotContent() missing metadata for snapshot: " << snapshotId << std::endl;
 		return false;
 	}
 
-	if (waitToken(grpToken) != RsTokenService::COMPLETE)
-	{
-		std::cerr << "p3Wiki::getSnapshotContent() group request failed" << std::endl;
-		return false;
-	}
+	const RsGxsMessageId origMsgId =
+	        (meta->mOrigMsgId.isNull() ? meta->mMsgId : meta->mOrigMsgId);
 
-	std::list<RsGxsGroupId> grpIds;
-	if (!RsGenExchange::getGroupList(grpToken, grpIds) || grpIds.empty())
-	{
-		// If there are no wiki groups, the snapshot cannot exist.
-		// Return false as documented: "true if snapshot found and content retrieved"
-		std::cerr << "p3Wiki::getSnapshotContent() failed to get group list or list is empty" << std::endl;
-		return false;
-	}
+	std::vector<RsGxsGrpMsgIdPair> msgIds;
+	msgIds.emplace_back(grpId, origMsgId);
 
-	// Use token-based request to fetch snapshots for all groups
-	uint32_t token;
 	RsTokReqOptions opts;
-	opts.mReqType = GXS_REQUEST_TYPE_MSG_DATA;
-	
-	if (!requestMsgInfo(token, opts, grpIds))
+	opts.mReqType = GXS_REQUEST_TYPE_MSG_RELATED_DATA;
+	opts.mOptions = RS_TOKREQOPT_MSG_LATEST;
+
+	uint32_t token;
+	if (!requestMsgRelatedInfo(token, opts, msgIds))
 	{
-		std::cerr << "p3Wiki::getSnapshotContent() requestMsgInfo failed" << std::endl;
+		std::cerr << "p3Wiki::getSnapshotContent() requestMsgRelatedInfo failed" << std::endl;
 		return false;
 	}
-	
-	// Wait for request to complete
+
 	if (waitToken(token) != RsTokenService::COMPLETE)
 	{
 		std::cerr << "p3Wiki::getSnapshotContent() request failed" << std::endl;
 		return false;
 	}
-	
-	// Get snapshot data
-	std::vector<RsWikiSnapshot> snapshots;
-	if (!getSnapshots(token, snapshots))
+
+	GxsMsgRelatedDataMap msgData;
+	if (!getMsgRelatedData(token, msgData))
 	{
-		std::cerr << "p3Wiki::getSnapshotContent() failed to get snapshots" << std::endl;
+		std::cerr << "p3Wiki::getSnapshotContent() failed to get related snapshots" << std::endl;
 		return false;
 	}
-	
-	// Find the specific snapshot by ID
-	for (const auto& snapshot : snapshots)
+
+	bool found = false;
+	auto it = msgData.find(grpId);
+	if (it != msgData.end())
 	{
-		if (snapshot.mMeta.mMsgId == snapshotId)
+		for (auto item : it->second)
 		{
-			content = snapshot.mPage;
-			return true;
+			auto snapshotItem = dynamic_cast<RsGxsWikiSnapshotItem*>(item);
+			if (snapshotItem && !found)
+			{
+				content = snapshotItem->snapshot.mPage;
+				found = true;
+			}
 		}
 	}
-	
-	std::cerr << "p3Wiki::getSnapshotContent() snapshot not found: " << snapshotId << std::endl;
-	return false;
+
+	for (auto& groupItems : msgData)
+		for (auto item : groupItems.second)
+			delete item;
+
+	if (!found)
+		std::cerr << "p3Wiki::getSnapshotContent() snapshot not found: " << snapshotId << std::endl;
+
+	return found;
 }
 
-bool p3Wiki::getSnapshotsContent(const std::vector<RsGxsMessageId>& snapshotIds,
+bool p3Wiki::getSnapshotsContent(const RsGxsGroupId& grpId,
+                                 const std::vector<RsGxsMessageId>& snapshotIds,
                                  std::map<RsGxsMessageId, std::string>& contents)
 {
 	// Allow empty input - just return success with empty map
@@ -431,75 +430,92 @@ bool p3Wiki::getSnapshotsContent(const std::vector<RsGxsMessageId>& snapshotIds,
 
 	// Ensure output map does not contain stale entries from previous calls
 	contents.clear();
-	
-	// First, retrieve the list of all wiki group IDs
-	uint32_t grpToken;
-	RsTokReqOptions grpOpts;
-	grpOpts.mReqType = GXS_REQUEST_TYPE_GROUP_IDS;
 
-	if (!requestGroupInfo(grpToken, grpOpts))
+	if (grpId.isNull())
+		return false;
+
+	GxsMsgReq metaReq;
+	metaReq[grpId] = std::set<RsGxsMessageId>(snapshotIds.begin(), snapshotIds.end());
+
+	GxsMsgMetaResult metaResult;
+	if (!getDataStore() || getDataStore()->retrieveGxsMsgMetaData(metaReq, metaResult) != 1)
 	{
-		std::cerr << "p3Wiki::getSnapshotsContent() requestGroupInfo failed" << std::endl;
+		std::cerr << "p3Wiki::getSnapshotsContent() failed to retrieve metadata" << std::endl;
 		return false;
 	}
 
-	if (waitToken(grpToken) != RsTokenService::COMPLETE)
-	{
-		std::cerr << "p3Wiki::getSnapshotsContent() group request failed" << std::endl;
-		return false;
-	}
-
-	// GXS API requires non-empty GroupIds to fetch specific messages. Since we only
-	// have MessageIds without their GroupIds, fetch all wiki group IDs and then
-	// filter the resulting snapshots by the requested MessageIds.
-	std::list<RsGxsGroupId> grpIds;
-	if (!RsGenExchange::getGroupList(grpToken, grpIds) || grpIds.empty())
-	{
-		// If there are no wiki groups, there cannot be any snapshots to return.
-		// Return true as the operation succeeded, but with an empty result set.
-		// This matches the documented behavior: "true if operation completed successfully"
+	auto metaIt = metaResult.find(grpId);
+	if (metaIt == metaResult.end())
 		return true;
-	}
-	
-	// Use token-based request to fetch all snapshots
-	uint32_t token;
-	RsTokReqOptions opts;
-	opts.mReqType = GXS_REQUEST_TYPE_MSG_DATA;
-	
-	if (!requestMsgInfo(token, opts, grpIds))
+
+	std::map<RsGxsMessageId, std::vector<RsGxsMessageId>> origToRequested;
+	std::set<RsGxsMessageId> origIds;
+	for (const auto& metaPtr : metaIt->second)
 	{
-		std::cerr << "p3Wiki::getSnapshotsContent() requestMsgInfo failed" << std::endl;
+		if (!metaPtr)
+			continue;
+		const RsGxsMessageId origMsgId =
+		        (metaPtr->mOrigMsgId.isNull() ? metaPtr->mMsgId : metaPtr->mOrigMsgId);
+		origToRequested[origMsgId].push_back(metaPtr->mMsgId);
+		origIds.insert(origMsgId);
+	}
+
+	if (origIds.empty())
+		return true;
+
+	std::vector<RsGxsGrpMsgIdPair> msgIds;
+	msgIds.reserve(origIds.size());
+	for (const auto& origId : origIds)
+		msgIds.emplace_back(grpId, origId);
+
+	RsTokReqOptions opts;
+	opts.mReqType = GXS_REQUEST_TYPE_MSG_RELATED_DATA;
+	opts.mOptions = RS_TOKREQOPT_MSG_LATEST;
+
+	uint32_t token;
+	if (!requestMsgRelatedInfo(token, opts, msgIds))
+	{
+		std::cerr << "p3Wiki::getSnapshotsContent() requestMsgRelatedInfo failed" << std::endl;
 		return false;
 	}
-	
-	// Wait for request to complete
+
 	if (waitToken(token) != RsTokenService::COMPLETE)
 	{
 		std::cerr << "p3Wiki::getSnapshotsContent() request failed" << std::endl;
 		return false;
 	}
-	
-	// Get snapshot data
-	std::vector<RsWikiSnapshot> snapshots;
-	if (!getSnapshots(token, snapshots))
+
+	GxsMsgRelatedDataMap msgData;
+	if (!getMsgRelatedData(token, msgData))
 	{
-		std::cerr << "p3Wiki::getSnapshotsContent() failed to get snapshots" << std::endl;
+		std::cerr << "p3Wiki::getSnapshotsContent() failed to get related snapshots" << std::endl;
 		return false;
 	}
-	
-	// Create a set of requested IDs for fast lookup
-	std::set<RsGxsMessageId> requestedIds(snapshotIds.begin(), snapshotIds.end());
-	
-	// Map snapshotId -> content for requested snapshots only
-	for (const auto& snapshot : snapshots)
+
+	auto dataIt = msgData.find(grpId);
+	if (dataIt != msgData.end())
 	{
-		if (requestedIds.find(snapshot.mMeta.mMsgId) != requestedIds.end())
+		for (auto item : dataIt->second)
 		{
-			contents[snapshot.mMeta.mMsgId] = snapshot.mPage;
+			auto snapshotItem = dynamic_cast<RsGxsWikiSnapshotItem*>(item);
+			if (!snapshotItem)
+				continue;
+
+			const RsGxsMessageId origMsgId =
+			        (snapshotItem->meta.mOrigMsgId.isNull() ? snapshotItem->meta.mMsgId : snapshotItem->meta.mOrigMsgId);
+			auto requestedIt = origToRequested.find(origMsgId);
+			if (requestedIt == origToRequested.end())
+				continue;
+
+			for (const auto& requestedId : requestedIt->second)
+				contents[requestedId] = snapshotItem->snapshot.mPage;
 		}
 	}
-	
-	// Return true even if no snapshots found - successful operation with zero results
+
+	for (auto& groupItems : msgData)
+		for (auto item : groupItems.second)
+			delete item;
+
 	return true;
 }
 
@@ -591,6 +607,35 @@ bool p3Wiki::getOriginalMessageAuthor(const RsGxsGroupId& grpId, const RsGxsMess
 		if (metaPtr && metaPtr->mMsgId == msgId)
 		{
 			authorId = metaPtr->mAuthorId;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool p3Wiki::getMessageMeta(const RsGxsGroupId& grpId, const RsGxsMessageId& msgId,
+                            std::shared_ptr<RsGxsMsgMetaData>& meta) const
+{
+	if (!getDataStore())
+		return false;
+
+	GxsMsgReq req;
+	req[grpId].insert(msgId);
+
+	GxsMsgMetaResult metaResult;
+	if (getDataStore()->retrieveGxsMsgMetaData(req, metaResult) != 1)
+		return false;
+
+	auto groupIt = metaResult.find(grpId);
+	if (groupIt == metaResult.end())
+		return false;
+
+	for (const auto& metaPtr : groupIt->second)
+	{
+		if (metaPtr && metaPtr->mMsgId == msgId)
+		{
+			meta = metaPtr;
 			return true;
 		}
 	}

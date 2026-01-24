@@ -28,6 +28,7 @@
 #include "util/rstickevent.h"
 
 #include <map>
+#include <memory>
 #include <string>
 
 /* 
@@ -74,9 +75,11 @@ public:
 	virtual bool isActiveModerator(const RsGxsGroupId& grpId, const RsGxsId& authorId, rstime_t editTime) override;
 
 	/* Content fetching for merge operations (Todo 3) */
-	virtual bool getSnapshotContent(const RsGxsMessageId& snapshotId, 
+	virtual bool getSnapshotContent(const RsGxsGroupId& grpId,
+	                                const RsGxsMessageId& snapshotId,
 	                                std::string& content) override;
-	virtual bool getSnapshotsContent(const std::vector<RsGxsMessageId>& snapshotIds,
+	virtual bool getSnapshotsContent(const RsGxsGroupId& grpId,
+	                                 const std::vector<RsGxsMessageId>& snapshotIds,
 	                                 std::map<RsGxsMessageId, std::string>& contents) override;
 
 	/* Notification support */
@@ -89,6 +92,7 @@ private:
 	bool checkModeratorPermission(const RsGxsGroupId& grpId, const RsGxsId& authorId, const RsGxsId& originalAuthorId, rstime_t editTime);
 	bool getCollectionData(const RsGxsGroupId& grpId, RsWikiCollection& collection) const;
 	bool getOriginalMessageAuthor(const RsGxsGroupId& grpId, const RsGxsMessageId& msgId, RsGxsId& authorId) const;
+	bool getMessageMeta(const RsGxsGroupId& grpId, const RsGxsMessageId& msgId, std::shared_ptr<RsGxsMsgMetaData>& meta) const;
 	
 	// Track known wikis to distinguish NEW from UPDATED
 	std::map<RsGxsGroupId, rstime_t> mKnownWikis;

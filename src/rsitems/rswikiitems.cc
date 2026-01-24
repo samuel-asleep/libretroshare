@@ -47,7 +47,6 @@ void RsGxsWikiCollectionItem::clear()
 	collection.mDescription.clear();
 	collection.mCategory.clear();
 	collection.mHashTags.clear();
-	collection.mModeratorList.clear();
 	collection.mModeratorTerminationDates.clear();
 }
 
@@ -56,8 +55,33 @@ void RsGxsWikiCollectionItem::serial_process(RsGenericSerializer::SerializeJob j
     RsTypeSerializer::serial_process(j,ctx,TLV_TYPE_STR_DESCR   ,collection.mDescription,"collection.mDescription") ;
     RsTypeSerializer::serial_process(j,ctx,TLV_TYPE_STR_CATEGORY,collection.mCategory   ,"collection.mCategory") ;
     RsTypeSerializer::serial_process(j,ctx,TLV_TYPE_STR_HASH_TAG,collection.mHashTags   ,"collection.mHashTags") ;
-    RsTypeSerializer::serial_process(j,ctx,collection.mModeratorList,"collection.mModeratorList") ;
-    RsTypeSerializer::serial_process(j,ctx,collection.mModeratorTerminationDates,"collection.mModeratorTerminationDates") ;
+
+	std::list<RsGxsId> moderatorList;
+	std::map<RsGxsId, rstime_t> terminationDates;
+
+	if (j == RsGenericSerializer::TO_JSON || j == RsGenericSerializer::SERIALIZE)
+	{
+		for (const auto& entry : collection.mModeratorTerminationDates)
+		{
+			if (entry.second == 0)
+				moderatorList.push_back(entry.first);
+			else
+				terminationDates.insert(entry);
+		}
+	}
+
+	RsTypeSerializer::serial_process(j,ctx,moderatorList,"collection.mModeratorList") ;
+	RsTypeSerializer::serial_process(j,ctx,terminationDates,"collection.mModeratorTerminationDates") ;
+
+	if (j == RsGenericSerializer::FROM_JSON || j == RsGenericSerializer::DESERIALIZE)
+	{
+		collection.mModeratorTerminationDates = terminationDates;
+		for (const auto& id : moderatorList)
+		{
+			if (collection.mModeratorTerminationDates.find(id) == collection.mModeratorTerminationDates.end())
+				collection.mModeratorTerminationDates[id] = 0;
+		}
+	}
 }
 
 void RsGxsWikiSnapshotItem::clear()

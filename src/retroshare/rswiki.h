@@ -99,9 +99,9 @@ struct RsWikiCollection: RsGxsGenericGroupData
 	std::string mDescription;
 	std::string mCategory;
 	std::string mHashTags;
-	// List of current/active moderator IDs for this collection.
-	std::list<RsGxsId> mModeratorList;
-	// Map of moderator IDs to their termination timestamps (for removed moderators).
+	// Map of moderator IDs to their termination timestamps.
+	// A value of 0 means the moderator is currently active.
+	// Non-zero values record removal time for historical checks.
 	std::map<RsGxsId, rstime_t> mModeratorTerminationDates;
 };
 
@@ -182,20 +182,30 @@ public:
 	/* Content fetching for merge operations (Todo 3) */
 	/**
 	 * @brief Get page content from a single snapshot for merging
+	 *
+	 * If the snapshot is an edit, this resolves the latest revision in the
+	 * edit chain using message metadata (mOrigMsgId).
+	 * @param grpId The ID of the wiki collection/group
 	 * @param snapshotId The message ID of the snapshot
 	 * @param content Output parameter for page content
 	 * @return true if snapshot found and content retrieved
 	 */
-	virtual bool getSnapshotContent(const RsGxsMessageId& snapshotId, 
+	virtual bool getSnapshotContent(const RsGxsGroupId& grpId,
+	                                const RsGxsMessageId& snapshotId,
 	                                std::string& content) = 0;
 
 	/**
 	 * @brief Get page content from multiple snapshots efficiently (bulk fetch)
+	 *
+	 * For each requested snapshot ID, this resolves the latest revision in the
+	 * edit chain using message metadata (mOrigMsgId).
+	 * @param grpId The ID of the wiki collection/group
 	 * @param snapshotIds Vector of snapshot message IDs to fetch
-	 * @param contents Output map of snapshotId -> content
+	 * @param contents Output map of requested snapshotId -> content
 	 * @return true if the operation completed successfully (contents may be empty)
 	 */
-	virtual bool getSnapshotsContent(const std::vector<RsGxsMessageId>& snapshotIds,
+	virtual bool getSnapshotsContent(const RsGxsGroupId& grpId,
+	                                 const std::vector<RsGxsMessageId>& snapshotIds,
 	                                 std::map<RsGxsMessageId, std::string>& contents) = 0;
 
 	/* Notification support */
