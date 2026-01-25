@@ -396,23 +396,23 @@ bool p3Wiki::getSnapshotContent(const RsGxsGroupId& grpId,
 	}
 
 	bool found = false;
-	auto it = msgData.find(grpId);
-	if (it != msgData.end())
+	for (auto& groupItems : msgData)
 	{
-		for (auto item : it->second)
+		if (groupItems.first.first == grpId)
 		{
-			auto snapshotItem = dynamic_cast<RsGxsWikiSnapshotItem*>(item);
-			if (snapshotItem && !found)
+			for (auto item : groupItems.second)
 			{
-				content = snapshotItem->snapshot.mPage;
-				found = true;
+				auto snapshotItem = dynamic_cast<RsGxsWikiSnapshotItem*>(item);
+				if (snapshotItem && !found)
+				{
+					content = snapshotItem->snapshot.mPage;
+					found = true;
+				}
 			}
 		}
-	}
-
-	for (auto& groupItems : msgData)
 		for (auto item : groupItems.second)
 			delete item;
+	}
 
 	if (!found)
 		std::cerr << "p3Wiki::getSnapshotContent() snapshot not found: " << snapshotId << std::endl;
@@ -492,29 +492,29 @@ bool p3Wiki::getSnapshotsContent(const RsGxsGroupId& grpId,
 		return false;
 	}
 
-	auto dataIt = msgData.find(grpId);
-	if (dataIt != msgData.end())
-	{
-		for (auto item : dataIt->second)
-		{
-			auto snapshotItem = dynamic_cast<RsGxsWikiSnapshotItem*>(item);
-			if (!snapshotItem)
-				continue;
-
-			const RsGxsMessageId origMsgId =
-			        (snapshotItem->meta.mOrigMsgId.isNull() ? snapshotItem->meta.mMsgId : snapshotItem->meta.mOrigMsgId);
-			auto requestedIt = origToRequested.find(origMsgId);
-			if (requestedIt == origToRequested.end())
-				continue;
-
-			for (const auto& requestedId : requestedIt->second)
-				contents[requestedId] = snapshotItem->snapshot.mPage;
-		}
-	}
-
 	for (auto& groupItems : msgData)
+	{
+		if (groupItems.first.first == grpId)
+		{
+			for (auto item : groupItems.second)
+			{
+				auto snapshotItem = dynamic_cast<RsGxsWikiSnapshotItem*>(item);
+				if (!snapshotItem)
+					continue;
+
+				const RsGxsMessageId origMsgId =
+				        (snapshotItem->meta.mOrigMsgId.isNull() ? snapshotItem->meta.mMsgId : snapshotItem->meta.mOrigMsgId);
+				auto requestedIt = origToRequested.find(origMsgId);
+				if (requestedIt == origToRequested.end())
+					continue;
+
+				for (const auto& requestedId : requestedIt->second)
+					contents[requestedId] = snapshotItem->snapshot.mPage;
+			}
+		}
 		for (auto item : groupItems.second)
 			delete item;
+	}
 
 	return true;
 }
